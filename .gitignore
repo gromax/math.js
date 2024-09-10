@@ -126,3 +126,4 @@ out
 .pnp.*
 dist/test.js
 dist/maths.js
+package-lock.json
