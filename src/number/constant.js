@@ -25,7 +25,7 @@ class Constant{
     }
 
     /**
-     * test si la chaîne est bien d'une constante
+     * teste si la chaîne est bien d'une constante
      * @param {string} chaine 
      * @returns {boolean}
      */
