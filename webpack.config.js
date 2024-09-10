@@ -3,6 +3,7 @@ const path = require('path');
 module.exports = {
 	mode: "development",
 	entry: {
+		test_parser: './src/tests/parser.js',
 		test:'./src/test.js',
 		math:'./src/maths.js'
 	},
