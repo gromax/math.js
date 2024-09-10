@@ -2,6 +2,9 @@ class TFunction {
     /** @type {string} */
     #name;
     constructor(name) {
+        if (name == 'racine') {
+            name = 'sqrt';
+        }
         this.#name = name;
     }
 
