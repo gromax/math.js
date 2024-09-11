@@ -23,13 +23,13 @@ class Scalar {
      * @param {string, number} entree 
      */
     constructor(entree) {
-        if (!(typeof chaine == 'string')) {
+        if (typeof entree == 'string') {
             this.#makeFromString(entree);
-        }
-        if (!(typeof entree == 'number')) {
+        } else if (typeof entree == 'number') {
             this.#makeFromNumber(entree);
+        } else {
+            throw new Error(`entree = ${entree} invalide pour un Scalar`);
         }
-        throw new Error(`entree = ${entree} invalide pour un Scalar`);
     }
 
     /**
@@ -66,12 +66,18 @@ class Scalar {
             this.#float = true;
             return;
         }
-        let [a,b] = chaine.split('.');
+        let iDot = chaine.indexOf('.');
+        let a = iDot >=0? chaine.substring(0,iDot) : chaine;
+        let b = iDot >=0? chaine.substring(iDot+1) : "";
         this.#exposant = -b.length
         if (percent) {
             this.#exposant -= 2;
         }
         this.#intValue = Number(a+b);
+        while ((this.#intValue %10 ==0) && (this.#exposant < 0)) {
+            this.#intValue = Math.floor(this.#intValue / 10);
+            this.#exposant += 1;
+        }
     }
 
     /**
@@ -94,6 +100,18 @@ class Scalar {
      */
     toString() {
         return this.#chaine;
+    }
+
+    get priority() {
+        return 10;
+    }
+
+    isInteger() {
+        return (!this.#float) && (this.#exposant == 0);
+    }
+
+    get floatValue() {
+        return this.#floatValue;
     }
 }
 
