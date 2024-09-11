@@ -7,7 +7,21 @@ class Power {
     }
 
     toString() {
-        return `(${String(this.#left)} ^ ${String(this.#right)})`;
+        let left = this.#left.priority <= this.priority? `(${String(this.#left)})`:String(this.#left);
+        let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        return `${left} ^ ${right}`;
+    }
+
+    get priority() {
+        return 3;
+    }
+
+    get left() {
+        return this.#left;
+    }
+
+    get right() {
+        return this.#right;
     }
 }
 

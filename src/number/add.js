@@ -7,7 +7,19 @@ class Add {
     }
 
     toString() {
-        return `(${String(this.#left)} + ${String(this.#right)})`;
+        return `${String(this.#left)} + ${String(this.#right)}`;
+    }
+
+    get priority() {
+        return 1;
+    }
+
+    get left() {
+        return this.#left;
+    }
+
+    get right() {
+        return this.#right;
     }
 }
 
@@ -21,7 +33,21 @@ class Minus {
     }
 
     toString() {
-        return `(${String(this.#left)} - ${String(this.#right)})`;
+        let left = String(this.#left);
+        let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        return `${left} - ${right}`;
+    }
+
+    get priority() {
+        return 1;
+    }
+
+    get left() {
+        return this.#left;
+    }
+
+    get right() {
+        return this.#right;
     }
 }
 

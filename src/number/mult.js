@@ -7,7 +7,21 @@ class Mult {
     }
 
     toString() {
-        return `(${String(this.#left)} * ${String(this.#right)})`;
+        let left = this.#left.priority < this.priority? `(${String(this.#left)})`:String(this.#left);
+        let right = this.#right.priority < this.priority? `(${String(this.#right)})`:String(this.#right);
+        return `${left} * ${right}`;
+    }
+
+    get priority() {
+        return 2;
+    }
+
+    get left() {
+        return this.#left;
+    }
+
+    get right() {
+        return this.#right;
     }
 }
 
@@ -21,7 +35,25 @@ class Div {
     }
 
     toString() {
-        return `(${String(this.#left)} / ${String(this.#right)})`;
+        let left = String(this.#left);
+        let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        return `${left} / ${right}`;
+    }
+
+    get priority() {
+        return 2;
+    }
+
+    get left() {
+        return this.#left;
+    }
+
+    get right() {
+        return this.#right;
+    }
+
+    inverse() {
+        return new Div(this.#right, this.#left);
     }
 }
 
