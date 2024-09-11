@@ -1,5 +1,5 @@
 class Constant{
-    NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
+    static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
     #name; /** @type{string} */
     constructor(name) {
         if (!Constant.isConstant(name)) {
@@ -35,6 +35,10 @@ class Constant{
 
     toString() {
         return this.#name;
+    }
+
+    get priority() {
+        return 10;
     }
 
 
