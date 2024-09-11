@@ -33,6 +33,10 @@ class Symbol {
     toString() {
         return this.#name;
     }
+
+    get priority() {
+        return 10;
+    }
 }
 
 export { Symbol };
