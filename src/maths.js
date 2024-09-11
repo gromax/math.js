@@ -1,5 +1,7 @@
 import { Parser } from "./parser/parser";
 import { build as rpnbuilder } from "./number/rpnbuilder" ;
+import _ from "lodash";
+
 
 class NumberManager {
     #messages;
@@ -16,7 +18,7 @@ class NumberManager {
             } catch(error) {
                 this.#messages.push(String(error));
             }
-        } else if (typeof entree == 'Array') {
+        } else if (_.isArray(entree)) {
             this.#buildFromRPN(entree);
         } else {
             throw new Error(`L'entrée ${entree} est invalide.`);
@@ -30,4 +32,10 @@ class NumberManager {
     #buildFromRPN(rpn) {
         this.#child = rpnbuilder(rpn);
     }
+
+    get messages() {
+        return [...this.#messages];
+    }
 }
+
+export { NumberManager };
