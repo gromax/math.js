@@ -7,7 +7,7 @@ import { Symbol } from "./symbol";
 import { Scalar } from "./scalar";
 
 function build(rpn) {
-    stack = [];
+    let stack = [];
     for (let item of rpn) {
         if (Function.isFunction(item)) {
             if (stack.length == 0) {
