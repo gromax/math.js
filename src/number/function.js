@@ -1,7 +1,7 @@
 class Function {
     #child;
     #name;
-    NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp'];
+    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp'];
     constructor(name, child) {
         if (!Function.isFunction(name)) {
             throw new Error(`${name} n'est pas une fonction reconnue.`);
@@ -32,8 +32,25 @@ class Function {
     }
 
     toString() {
-        return `${this.#name}(${String(this.#child)})`;
+        if (this.#name == '(+)') {
+            return String(this.#child);
+        }
+        let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
+        return `${this.#name}${child}`;
     }
+
+    get name() {
+        return this.#name;
+    }
+
+    get priority() {
+        return 4;
+    }
+
+    get child() {
+        return this.#child;
+    }
+
 }
 
 export { Function };
