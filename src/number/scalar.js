@@ -113,6 +113,23 @@ class Scalar {
     get floatValue() {
         return this.#floatValue;
     }
+
+    /**
+    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
+    * @return {string}
+    */
+    signature() {
+        return "";
+    }
+
+    opposite() {
+        let opp = new Scalar(-this.#floatValue);
+        opp.#float = this.#float;
+        opp.#intValue = - this.#intValue;
+        opp.#exposant = this.#exposant;
+        return opp;
+    }
+
 }
 
 export { Scalar };
