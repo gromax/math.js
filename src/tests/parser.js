@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { Parser } from '../parser/parser';
-import { build } from '../number/rpnbuilder' ;
-import { developp } from '../number/developp';
+import { build } from '../numbertools/rpnbuilder' ;
+import { developp } from '../numbertools/developp';
 
 function add(texte, node) {
     let txtNode = document.createTextNode(texte);
