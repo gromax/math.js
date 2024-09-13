@@ -1,7 +1,7 @@
 class Function {
     #child;
     #name;
-    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp'];
+    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp', 'inverse'];
     constructor(name, child) {
         if (!Function.isFunction(name)) {
             throw new Error(`${name} n'est pas une fonction reconnue.`);
@@ -49,6 +49,20 @@ class Function {
 
     get child() {
         return this.#child;
+    }
+
+    /**
+    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
+    * @return {string}
+    */
+    signature() {
+        if ((this.#name == "(-)") || (this.#name=="(+)")) {
+            return this.#child.signature();
+        }
+        if ((this.#name == "inverse") && (this.#child.signature() == "")) {
+            return "";
+        }
+        return String(this);
     }
 
 }
