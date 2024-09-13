@@ -37,6 +37,14 @@ class Symbol {
     get priority() {
         return 10;
     }
+
+    /**
+    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
+    * @return {string}
+    */
+    signature() {
+        return String(this);
+    }
 }
 
 export { Symbol };

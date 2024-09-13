@@ -23,6 +23,14 @@ class Power {
     get right() {
         return this.#right;
     }
+
+    /**
+    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
+    * @return {string}
+    */
+    signature() {
+        return String(this);
+    }
 }
 
 export { Power }
