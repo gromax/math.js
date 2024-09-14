@@ -4,22 +4,29 @@ import { Scalar } from "./scalar";
 class Mult {
     #left;
     #right;
-    #numerator;
+    #items;
     constructor(left, right) {
+        if (typeof left == "undefined") {
+            throw new Error("left undefined");
+        }
+        if (typeof right == "undefined") {
+            throw new Error("right undefined");
+        }
+
         this.#left = left;
         this.#right = right;
-        let numerator = [];
+        let items = [];
         if (left instanceof Mult) {
-            numerator.push(...left.numerator());
+            items.push(...left.items());
         } else {
-            numerator.push(left);
+            items.push(left);
         }
         if (right instanceof Mult) {
-            numerator.push(...right.numerator());
+            items.push(...right.items());
         } else {
-            numerator.push(right);
+            items.push(right);
         }
-        this.#numerator = _.sortBy(numerator, function(item){ return item.signature(); });
+        this.#items = _.sortBy(items, function(item){ return item.signature(); });
     }
 
     /**
@@ -42,8 +49,8 @@ class Mult {
         return node;
     }
 
-    numerator() {
-        return [...this.#numerator];
+    items() {
+        return [...this.#items];
     }
 
     toString() {
@@ -69,17 +76,51 @@ class Mult {
     * @return {string}
     */
     signature() {
-        let numerator = _.compact(
+        let items = _.compact(
             _.map(
-                this.numerator(),
+                this.items(),
                 function(item) { return item.signature(); }
             ));
-        let denominator = _.compact(
-            _.map(
-                this.denominator(),
-                function(item) { return item.signature(); }
-            ));
-        return `(${numerator.join(')(')})/(${denominator.join(')(')})`;
+        if (items.length == 1) {
+            return items[0];
+        }
+        return `(${items.join(')*(')})`;
+    }
+
+    calcScalars() {
+        let notscalars = this.getNotScalars();
+        if (notscalars.length == this.#items.length) {
+            return this;
+        }
+        let scalar = this.getScalar();
+        if (!scalar.isOne()) {
+            notscalars.unshift(scalar);
+        }
+        return Mult.fromList(notscalars);
+    }
+
+    /**
+     * calcule le poduit des scalaires
+     * @returns {Scalar}
+     */
+    getScalar() {
+        let scalars = _.filter(this.#items, function(item){ return item instanceof Scalar; });
+        if (scalars.length == 0) {
+            return new Scalar(1);
+        }
+        let s = scalars.pop();
+        for (let item of scalars) {
+            s = s.multiply(item);
+        }
+        return s;
+    }
+
+    /**
+     * renvoie la liste des non scalaires
+     * @returns {Array}
+     */
+    getNotScalars() {
+        return  _.filter(this.#items, function(item){ return !(item instanceof Scalar); });
     }
 }
 
