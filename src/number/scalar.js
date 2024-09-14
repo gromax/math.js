@@ -1,11 +1,13 @@
+import { pgcd } from "../numbertools/misc";
+
 class Scalar {
     static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i');
     
     #chaine = ""; /** @type{string} */
     #float = false; /** @type{boolean} */
     #floatValue; /** @type{number} */
-    #intValue = 0; /** @type{number} */
-    #exposant = 0; /** @type{number} */
+    #numerator = 0; /** @type{number} */
+    #denominator = 1; /** @type{number} */
     /**
      * tente la fabrication d'un Scalar à partir d'une chaine
      * @param {string} chaine 
@@ -39,7 +41,7 @@ class Scalar {
      */
     static isScalar(chaine) {
         return Scalar.REGEX.test(chaine);
-    }   
+    }
 
     /**
      * auxiliaire constructureur pour une chaine
@@ -64,39 +66,48 @@ class Scalar {
         }
         if (chaine.indexOf('E') >= 0) {
             this.#float = true;
+            this.#numerator = this.#floatValue;
             return;
         }
         let iDot = chaine.indexOf('.');
         let a = iDot >=0? chaine.substring(0,iDot) : chaine;
         let b = iDot >=0? chaine.substring(iDot+1) : "";
-        this.#exposant = -b.length
+        this.#denominator = Math.pow(10,b.length);
         if (percent) {
-            this.#exposant -= 2;
+            this.#denominator *= 100;
         }
-        this.#intValue = Number(a+b);
-        while ((this.#intValue %10 ==0) && (this.#exposant < 0)) {
-            this.#intValue = Math.floor(this.#intValue / 10);
-            this.#exposant += 1;
+        this.#numerator = Number(a+b);
+        this.#reduction();
+    }
+
+    /**
+     * Réduit la fraction
+     */
+    #reduction(){
+        if (this.#float) {
+            return;
+        }
+        let p = pgcd(this.#numerator, this.#denominator);
+        if (p>1) {
+            this.#numerator = this.#numerator / p;
+            this.#denominator = this.#denominator / p;
         }
     }
 
     /**
      * auxiliaire constructeur pour un Number
-     * @param {number} n 
+     * @param {number}
      */
     #makeFromNumber(n) {
         this.#chaine = String(n);
         this.#floatValue = n;
-        if (Math.floor(n) == n) {
-            this.#intValue = n;
-            return;
-        }
-        this.#float = true;
+        this.#numerator = n;
+        this.#float = isNaN(n) || (Math.floor(n) != n);
     }
 
     /**
      * trantypage
-     * @return{string}
+     * @return {string}
      */
     toString() {
         return this.#chaine;
@@ -107,11 +118,27 @@ class Scalar {
     }
 
     isInteger() {
-        return (!this.#float) && (this.#exposant == 0);
+        return (!this.#float) && (this.#denominator == 1);
     }
 
     get floatValue() {
         return this.#floatValue;
+    }
+
+    /**
+     * Renvoie vrai si == 1
+     * @returns { boolean }
+     */
+    isOne() {
+        return (!this.#float) && (this.#numerator == 1) && (this.#denominator == 1);
+    }
+
+    /**
+     * Renvoie vrai si == 1
+     * @returns { boolean }
+     */
+    isZero() {
+        return this.#floatValue == 0;
     }
 
     /**
@@ -122,14 +149,128 @@ class Scalar {
         return "";
     }
 
+    /**
+     * renvoie true si c'est un NaN
+     * @returns {boolean}
+     */
+    isNaN() {
+        return isNaN(this.#floatValue);
+    }
+
+    /**
+     * renvoie -this
+     * @returns {Scalar}
+     */
     opposite() {
+        if (this.isNaN()) {
+            return this;
+        }
         let opp = new Scalar(-this.#floatValue);
-        opp.#float = this.#float;
-        opp.#intValue = - this.#intValue;
-        opp.#exposant = this.#exposant;
+        opp.#float = this.#float || opp.isNaN();
+        opp.#numerator = - this.#numerator;
+        opp.#denominator = this.#denominator;
+        if (!opp.#float) {
+            opp.#chaine = opp.#denominator == 1? `${opp.#numerator}` : `(${opp.#numerator}/${opp.#denominator})`;
+        }
         return opp;
     }
 
+    /**
+     * renvoie l'inverse de this
+     * @returns {Scalar}
+     */
+    inverse() {
+        if (this.isNaN()) {
+            return this;
+        }
+        let inv = this.#floatValue == 0? new Scalar(Number('NaN')):new Scalar(1/this.#floatValue);
+        inv.#float = this.#float || inv.isNaN()
+        inv.#numerator = this.#numerator>0? this.#denominator:-this.#denominator;
+        inv.#denominator = Math.abs(this.#numerator);
+        if (!inv.#float) {
+            inv.#chaine = inv.#denominator == 1? `${inv.#numerator}` : `(${inv.#numerator}/${inv.#denominator})`;
+        }
+        return inv;
+    }
+
+    /**
+     * renvoie this * other
+     * @param {Scalar|number|string} other 
+     * @returns {Scalar}
+     */
+    multiply(other) {
+        if (this.isNaN()) {
+            return this;
+        }
+        if (other === 1) {
+            return this;
+        }
+        if (!(other instanceof Scalar)) {
+            other = new Scalar(other);
+        }
+        if (other.isNaN()) {
+            return other;
+        }
+        let s = new Scalar(this.#floatValue * other.floatValue);
+        s.#float = this.#float || other.#float;
+        s.#numerator = this.#numerator * other.#numerator;
+        s.#denominator = this.#denominator * other.#denominator;
+        s.#reduction();
+        if (!s.#float) {
+            s.#chaine = s.#denominator == 1? `${s.#numerator}` : `${s.#numerator}/${s.#denominator}`;
+        }
+        return s;
+    }
+
+    /**
+     * renvoie this * other
+     * @param {Scalar|number|string} other 
+     * @returns {Scalar}
+     */
+    add(other) {
+        if (this.isNaN()) {
+            return this;
+        }
+        if (other === 0) {
+            return this;
+        }
+        if (!(other instanceof Scalar)) {
+            other = new Scalar(other);
+        }
+        if (other.isNaN()) {
+            return other;
+        }
+        let s = new Scalar(this.#floatValue + other.floatValue);
+        s.#float = this.#float || other.#float;
+        s.#numerator = this.#numerator * other.#denominator + other.#numerator * this.#denominator;
+        s.#denominator = this.#denominator * other.#denominator;
+        s.#reduction();
+        if (!s.#float) {
+            s.#chaine = s.#denominator == 1? `${s.#numerator}` : `${s.#numerator}/${s.#denominator}`;
+        }
+        return s;
+    }
+
+    /**
+     * renvoie this * other
+     * @param {Scalar|number|string} other 
+     * @returns {Scalar}
+     */
+    divide(other) {
+        if (this.isNaN()) {
+            return this;
+        }
+        if (other === 1) {
+            return this;
+        }
+        if (!(other instanceof Scalar)) {
+            other = new Scalar(other);
+        }
+        if (other.isNaN()) {
+            return other;
+        }
+        return this.multiply(other.inverse());
+    }
 }
 
 export { Scalar };
