@@ -56,12 +56,6 @@ class Function {
     * @return {string}
     */
     signature() {
-        if ((this.#name == "(-)") || (this.#name=="(+)")) {
-            return this.#child.signature();
-        }
-        if ((this.#name == "inverse") && (this.#child.signature() == "")) {
-            return "";
-        }
         return String(this);
     }
 
