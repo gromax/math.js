@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { Scalar } from "./scalar";
+import { Mult } from "./mult";
 
 
 class Add {
@@ -7,6 +8,13 @@ class Add {
     #right;
     #items;
     constructor(left, right) {
+        if (typeof left == "undefined") {
+            throw new Error("left undefined");
+        }
+        if (typeof right == "undefined") {
+            throw new Error("right undefined");
+        }
+
         this.#left = left;
         this.#right = right;
         let items = [];
@@ -69,6 +77,84 @@ class Add {
     */
     signature() {
         return String(this);
+    }
+
+    /**
+     * Calcule les scalaires
+     * @returns {Add|Scalar}
+     */
+    calcScalars() {
+        let scalars = _.filter(this.#items, function(item){ return item instanceof Scalar; });
+        if (scalars.length <= 1) {
+            return this;
+        }
+        let notscalars = _.filter(this.#items, function(item){ return !(item instanceof Scalar); });
+        let s = scalars.pop();
+        for (let item of scalars) {
+            s = s.add(item);
+        }
+        notscalars.unshift(s);
+        return Add.fromList(notscalars);
+    }
+
+    /**
+     * Regroupe les termes de même signature
+     * @returns { Add }
+     */
+    groupeSameSignatures(){
+        let items = this.#items; /** @type {Array} */
+        console.log(_.map(items, function(item){return item.signature();}).join(';'));
+        let out = [];
+        while (items.length >0) {
+            let current = items.shift();
+            let currentGroup = [current];
+            let signature = current.signature();
+            console.log(`lecture de ${signature}`);
+            let j = 0;
+            while (j<items.length) {
+                let item = items[j];
+                if (item.signature() == signature) {
+                    currentGroup.push(item);
+                    items.splice(j,1);
+                } else {
+                    j += 1;
+                }
+            }
+            if (currentGroup.length == 1){
+                console.log("rien trouvé")
+                out.push(current);
+                continue;
+            }
+            let scalars = [];
+            let baseNode = currentGroup[0] instanceof Scalar ? new Scalar(1)
+                         : currentGroup[0] instanceof Mult ? Mult.fromList(currentGroup[0].getNotScalars())
+                         : currentGroup[0];
+            for (let item of currentGroup) {
+                if (item instanceof Scalar) {
+                    scalars.push(item);
+                    continue;
+                }
+                if (item instanceof Mult) {
+                    scalars.push(item.getScalar());
+                    continue;
+                }
+                scalars.push(new Scalar(1));
+            }
+            let s = scalars.pop();
+            for (let item of scalars){
+                s = s.add(item);
+            }
+            if (s.isZero()) {
+                out.push(s);
+            } else if (baseNode instanceof Scalar) {
+                out.push(s);
+            } else if (s.isOne()) {
+                out.push(baseNode);
+            } else {
+                out.push(new Mult(s, baseNode));
+            }
+        }
+        return Add.fromList(out);
     }
 }
 
