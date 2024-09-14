@@ -1,5 +1,5 @@
 import { Parser } from "./parser/parser";
-import { build as rpnbuilder } from "./number/rpnbuilder" ;
+import { build as rpnbuilder } from "./numbertools/rpnbuilder" ;
 import _ from "lodash";
 
 
