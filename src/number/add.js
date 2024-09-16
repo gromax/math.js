@@ -1,18 +1,26 @@
 import _ from "lodash";
+import { Base } from "./base";
 import { Scalar } from "./scalar";
 import { Mult } from "./mult";
 
 
-class Add {
+class Add extends Base {
     #left;
     #right;
     #items;
+    #str;
+
+    /**
+     * 
+     * @param {Base} left 
+     * @param {Base} right 
+     */
     constructor(left, right) {
-        if (typeof left == "undefined") {
-            throw new Error("left undefined");
+        if (! left instanceof Base) {
+            throw new Error("left invalide");
         }
-        if (typeof right == "undefined") {
-            throw new Error("right undefined");
+        if (! right instanceof Base) {
+            throw new Error("right invalide");
         }
 
         this.#left = left;
@@ -29,14 +37,16 @@ class Add {
             items.push(right);
         }
         this.#items = _.sortBy(items, function(item){return item.signature()});
+        this.#str = `${String(this.#left)} + ${String(this.#right)}`;
     }
 
     /**
      * 
      * @param {Array} operandes 
-     * @returns {Add, Scalar}
+     * @returns {Base}
      */
     static fromList(operandes) {
+        operandes = _.filter(operandes, function(item){return (!(item instanceof Scalar) || !item.isZero())})
         if (operandes.length == 0){
             return new Scalar(0);
         }
@@ -55,8 +65,12 @@ class Add {
         return [...this.#items];
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
-        return `${String(this.#left)} + ${String(this.#right)}`;
+        return this.#str;
     }
 
     get priority() {
@@ -97,6 +111,63 @@ class Add {
         return Add.fromList(notscalars);
     }
 
+    #makeGroup(items){
+        let current = items[0];
+        let currentGroup = [current];
+        let notTaken = []
+        let signature = current.signature();
+        for (let j=1; j<items.length; j++) {
+            let item = items[j];
+            if (item.signature() == signature) {
+                currentGroup.push(item);
+            } else {
+                notTaken.push(item);
+            }
+        }
+        return (currentGroup, notTaken);
+    }
+    /**
+     * regroupe les élements d'une somme ayant la même base
+     * @param {Array} items 
+     * @returns {Mult, Scalar}
+     */
+    #contractGroup(items){
+        if (items.length == 0) {
+            return new Scalar(0);
+        }
+        if (items.length == 1) {
+            return items[0];
+        }
+        let scalars = [];
+        let baseNode = items[0] instanceof Scalar ? new Scalar(1)
+                        : items[0] instanceof Mult ? Mult.fromList(items[0].getNotScalars())
+                        : items[0];
+        for (let item of items) {
+            if (item instanceof Scalar) {
+                scalars.push(item);
+                continue;
+            }
+            if (item instanceof Mult) {
+                scalars.push(item.getScalar());
+                continue;
+            }
+            scalars.push(new Scalar(1));
+        }
+        let s = scalars.pop();
+        for (let item of scalars){
+            s = s.add(item);
+        }
+        if (s.isZero()) {
+            return s;
+        } else if (baseNode instanceof Scalar) {
+            return s;
+        } else if (s.isOne()) {
+            return baseNode;
+        } else {
+            return new Mult(s, baseNode);
+        }
+    }
+
     /**
      * Regroupe les termes de même signature
      * @returns { Add }
@@ -106,71 +177,33 @@ class Add {
         console.log(_.map(items, function(item){return item.signature();}).join(';'));
         let out = [];
         while (items.length >0) {
-            let current = items.shift();
-            let currentGroup = [current];
-            let signature = current.signature();
-            console.log(`lecture de ${signature}`);
-            let j = 0;
-            while (j<items.length) {
-                let item = items[j];
-                if (item.signature() == signature) {
-                    currentGroup.push(item);
-                    items.splice(j,1);
-                } else {
-                    j += 1;
-                }
-            }
-            if (currentGroup.length == 1){
-                console.log("rien trouvé")
-                out.push(current);
-                continue;
-            }
-            let scalars = [];
-            let baseNode = currentGroup[0] instanceof Scalar ? new Scalar(1)
-                         : currentGroup[0] instanceof Mult ? Mult.fromList(currentGroup[0].getNotScalars())
-                         : currentGroup[0];
-            for (let item of currentGroup) {
-                if (item instanceof Scalar) {
-                    scalars.push(item);
-                    continue;
-                }
-                if (item instanceof Mult) {
-                    scalars.push(item.getScalar());
-                    continue;
-                }
-                scalars.push(new Scalar(1));
-            }
-            let s = scalars.pop();
-            for (let item of scalars){
-                s = s.add(item);
-            }
-            if (s.isZero()) {
-                out.push(s);
-            } else if (baseNode instanceof Scalar) {
-                out.push(s);
-            } else if (s.isOne()) {
-                out.push(baseNode);
-            } else {
-                out.push(new Mult(s, baseNode));
-            }
+            let group;
+            [group, items] = this.#makeGroup(items);
+            out.push(this.#contractGroup(group));
         }
         return Add.fromList(out);
     }
 }
 
 
-class Minus {
+class Minus extends Base {
     #left;
     #right;
+    #str;
     constructor(left, right) {
         this.#left = left;
         this.#right = right;
+        let strLeft = String(this.#left);
+        let strRight = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        this.#str = `${strLeft} - ${strRight}`;
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
-        let left = String(this.#left);
-        let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
-        return `${left} - ${right}`;
+        return this.#str;
     }
 
     get priority() {
