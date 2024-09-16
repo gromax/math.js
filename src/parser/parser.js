@@ -250,6 +250,10 @@ class Parser {
         return correctedTokens;
     }
 
+    /**
+     * parse la chaîne fournie, renvoie true en cas de succès
+     * @returns {boolean}
+     */
     #parse() {
         /** @type{string} */
         let expression = this.#saisie;
@@ -298,6 +302,7 @@ class Parser {
 
         let rpn = this.#buildRPN(tokensList);
         this.#rpn = _.map(rpn, function(item){ return String(item);});
+        return true;
     }
 }
 
