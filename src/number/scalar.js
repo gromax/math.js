@@ -1,13 +1,18 @@
+import { Base } from "./base";
 import { pgcd } from "../numbertools/misc";
 
-class Scalar {
+class Scalar extends Base {
     static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i');
-    
+    static ONE = null;
+    static ZERO = null;
+
+
     #chaine = ""; /** @type{string} */
     #float = false; /** @type{boolean} */
     #floatValue; /** @type{number} */
     #numerator = 0; /** @type{number} */
     #denominator = 1; /** @type{number} */
+
     /**
      * tente la fabrication d'un Scalar à partir d'une chaine
      * @param {string} chaine 
@@ -271,6 +276,25 @@ class Scalar {
         }
         return this.multiply(other.inverse());
     }
+
+    /**
+     * scalaire pouvant être factorisé
+     * @returns {Scalar}
+     */
+    scalar(){
+        return this;
+    }
+    
+    /**
+     * renvoie la partie du noeud sans les scalaires pouvant être factorisés
+     * @returns {Scalar}
+     */
+    noscalar() {
+        return Scalar.ONE;
+    }
 }
+
+Scalar.ONE = new Scalar(1);
+Scalar.ZERO = new Scalar(0);
 
 export { Scalar };
