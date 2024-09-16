@@ -23,7 +23,7 @@ class Parser {
 
     /**
      * constructeur
-     * @param {string} saitie 
+     * @param {string} saisie 
      */
     constructor(saisie) {
         this.#saisie = saisie || "";
@@ -32,19 +32,26 @@ class Parser {
         this.#parse();
     }
 
+    /**
+     * @returns {Array} copie de l'attribut #rpn
+     */
     get rpn() {
         return [...this.#rpn];
     }
 
+    /**
+     * @returns {Array} copie de l'attribut #messages
+     */
     get messages() {
         return [...this.#messages];
     }
 
-
+    /**
+     * construit un token
+     * @param {string} tokenString
+     * @returns {TNumber|TSymbol|TFunction|TOperator|TParenthesis|null}
+     */
     #createToken(tokenString) {
-        /**
-         * construit un token
-         */
         for (let oToken of TOKENS) {
             let regex = oToken.REGEX;
             if (regex.test(tokenString)) {
@@ -55,10 +62,11 @@ class Parser {
         return null;
     }
 
+    /**
+     * modifie les opérateurs + ou - qui n'ont pas une opérande sur leur gauche
+     * @param {Array} tokensList
+     */
     #correctBinaireToUnaire(tokensList) {
-        /**
-         * modifie les opérateurs + ou - qui n'ont pas une opérande sur leur gauche
-         */
         for (let i=0; i<tokensList.length; i++) {
             /** @type{TNumber|TFunction|TOperator|TParenthesis|TSymbol} */
             let oToken = tokensList[i];
@@ -71,10 +79,12 @@ class Parser {
         return true;
     }
 
+    /**
+     * renvoie true si les parenthèses sont équilibrées
+     * @params {Array} tokens
+     * @returns {boolean}
+     */
     #parenthesesAreGood(tokens){
-        /**
-         * vérifie le bon équilibrage des parenthèses
-         */
         let ouvrants = [];
         for (let tok of tokens) {
             if (tok instanceof TParenthesis) {
@@ -100,54 +110,55 @@ class Parser {
         return true;
     }
 
-    #correctFrac(tokens) {
-        /**
-         * transforme les frac A B en A / B
-         */
-        let i = 0;
-        while (i < tokens.length) {
-            let token = tokens[i];
-            if (String(token) != "frac") {
-                i += 1;
+    /**
+     * transforme les frac A B en A / B
+     * @params {Array} tokens Liste de tokens
+     * @returns {Array|null} tokens corrigés ou null si échec
+     */
+    #correctFracs(tokens) {
+        let correctedTokens = [];
+        let depthsFracs = [];
+        let depth = 0;
+        for (let token of tokens){
+            if ((token instanceof TParenthesis) && token.ouvrant) {
+                depth += 1;
+                correctedTokens.push(token);
                 continue;
             }
-            // recherche du point ou déplacer frac
-            if (i == tokens.length) {
-                this.#messages.push('frac en dernière position.');
-                return false;
+            if (String(token) == "frac") {
+                depthsFracs.push(depth);
+                continue;
             }
-            let j = i+1;
-            let ouvrants = 0;
-            if ((tokens[j] instanceof TParenthesis) && tokens[j].ouvrant) {
-                ouvrants = 1;
-            }
-            while ((ouvrants > 0) && (j<tokens.length-1)) {
-                j+=1
-                if (!(tokens[j] instanceof TParenthesis)) {
-                    continue;
-                }
-                if (tokens[j].ouvrant) {
-                    j += 1;
-                } else {
-                    j -= 1;
+            if ((token instanceof TParenthesis) && token.fermant) {
+                depth -= 1;
+                if (depth <0) {
+                    this.#messages.push('frac: parenthèses mal équilibrées.');
+                    return null;
                 }
             }
-            if (ouvrants <0) {
-                this.#messages.push('frac: parenthèses mal équilibrées.');
-                return false;
+            correctedTokens.push(token);
+            if ((depthsFracs.length>0) && (depthsFracs[depthsFracs.length-1] == depth)) {
+                depthsFracs.pop();
+                correctedTokens.push(new TOperator('/'));
             }
-            // j est le point d'insertion de '/'
-            tokens.splice(i,1);
-            tokens.splice(j, 0, new TOperator('/'));
-            i = j+1;
         }
-        return true;
+        if (depth>0) {
+            this.#messages.push('frac: parenthèses mal équilibrées.');
+            return null;
+        }
+        if (depthsFracs.length>0) {
+            this.#messages.push("frac: certains fracs manquent d'opérandes.");
+            return null;
+        }
+        return correctedTokens;
     }
 
+    /**
+     * renvoie true si les opérateurs agissent comme il se doit à gauche et à droite
+     * @param {Array} tokens
+     * @returns {boolean}
+     */
     #verifyOperators(tokens) {
-        /**
-         * Vérifie que les opérateurs agissent comme il se doit à gauche et à droite
-         */
         for (let i=0; i<tokens.length; i++) {
             let tok = tokens[i];
             if (tok.operateOnLeft()) {
@@ -174,10 +185,12 @@ class Parser {
         return true;
     }
 
+    /**
+     * renvoie la liste en notation polonaise inversée
+     * @params {Array} tokens
+     * @returns {Array} rpn
+     */
     #buildRPN(tokens) {
-        /**
-         * renvoie la liste en notation polonaise inversée
-         */
         let rpn = [];
         let stack = [];
         for(let token of tokens) {
@@ -217,14 +230,24 @@ class Parser {
         return rpn;
     }
 
+    /**
+     * renvoie la liste de tokens avec les * manquants
+     * @param {Array} tokens liste de tokens
+     * @return {Array} liste corrigée
+     */
     #insertMissingMults(tokens){
-        let i = 0;
-        while (i<tokens.length-1) {
+        let correctedTokens = [];
+        let n = tokens.length;
+        for (let i=0; i<n-1; i++) {
+            correctedTokens.push(tokens[i]);
             if (tokens[i].acceptOperOnRight() && tokens[i+1].acceptOperOnLeft()) {
-                tokens.splice(i+1,0,new TOperator('*'));
+                correctedTokens.push(new TOperator('*'));
             }
-            i++;
         }
+        if (n > 0) {
+            correcteTokens.push(tokens[n-1]);
+        }
+        return correctedTokens;
     }
 
     #parse() {
@@ -262,11 +285,12 @@ class Parser {
             return false;
         }
 
-        if (!this.#correctFrac(tokensList)) {
+        tokensList = this.#correctFracs(tokensList)
+        if (tokensList == null) {
             return false;
         }
 
-        this.#insertMissingMults(tokensList);
+        tokensList = this.#insertMissingMults(tokensList);
 
         if (!this.#verifyOperators(tokensList)) {
             return false;
