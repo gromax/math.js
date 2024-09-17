@@ -1,8 +1,11 @@
-class Symbol {
+import { Base } from "./base";
+
+class Symbol extends Base {
     #name; /** @type{string} */
     static REGEX = new RegExp("[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i');
     
     constructor(name) {
+        super();
         if (!Symbol.isSymbol(name)) {
             throw new Error(`${name} n'est pas un nom de symbole valide.`);
         }
@@ -38,13 +41,6 @@ class Symbol {
         return 10;
     }
 
-    /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return String(this);
-    }
 }
 
 export { Symbol };
