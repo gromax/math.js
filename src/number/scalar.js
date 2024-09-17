@@ -3,15 +3,23 @@ import { pgcd } from "../numbertools/misc";
 
 class Scalar extends Base {
     static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i');
-    static ONE = null;
-    static ZERO = null;
+    /** @type {Scalar} */
+    static ONE;
+    /** @type {Scalar} */
+    static ZERO;
+    /** @type {Scalar} */
+    static MINUS_ONE;
 
-
-    #chaine = ""; /** @type{string} */
-    #float = false; /** @type{boolean} */
-    #floatValue; /** @type{number} */
-    #numerator = 0; /** @type{number} */
-    #denominator = 1; /** @type{number} */
+    /** @type{string} */
+    #chaine = "";
+    /** @type{boolean} */
+    #float = false;
+    /** @type{number} */
+    #floatValue;
+    /** @type{number} */
+    #numerator = 0;
+    /** @type{number} */
+    #denominator = 1;
 
     /**
      * tente la fabrication d'un Scalar à partir d'une chaine
@@ -289,12 +297,30 @@ class Scalar extends Base {
      * renvoie la partie du noeud sans les scalaires pouvant être factorisés
      * @returns {Scalar}
      */
-    noscalar() {
+    noScalar() {
         return Scalar.ONE;
+    }
+
+    /**
+     * renvoie la chaîne dépourvue de scalaires pour identifier un groupe dans une somme
+     * @returns {Base}
+     */
+    noScalarString() {
+        return "1";
     }
 }
 
+/** @type {Scalar} */
 Scalar.ONE = new Scalar(1);
+
+/** @type {Scalar} */
 Scalar.ZERO = new Scalar(0);
+
+/** @type {Scalar} */
+Scalar.MINUS_ONE = Scalar.ONE.opposite();
+
+Base.scalar = function() {
+    return Scalar.ONE;
+}
 
 export { Scalar };
