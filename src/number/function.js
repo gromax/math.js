@@ -104,6 +104,23 @@ class Function extends Base {
         return this.#noScalar;
     }
 
+    /**
+     * renvoie une forme normalisée : power pour inverse ou exp
+     * @returns {Base}
+     */
+    normalize() {
+        if (this.#name == 'exp') {
+            return new Power(Constant.E(), this.#child);
+        }
+        if (this.#name == 'inverse') {
+            return new Power(this.#child, Scalar.MINUS_ONE);
+        }
+        if (this.#name == "(+)") {
+            return this.#child;
+        }
+        return this;
+    }
+
 }
 
 export { Function };
