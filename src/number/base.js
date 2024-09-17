@@ -1,6 +1,5 @@
 class Base {
-    constructor(){   
-    }
+    constructor(){ }
 
     /**
      * transtypage vers string
@@ -10,16 +9,11 @@ class Base {
         return "(?)";
     }
 
+    /**
+     * priorité
+     */
     get priority() {
         return 0;
-    }
-
-    /**
-     * renvoie l'élément sans ses facteurs scalaires
-     * @returns {Base}
-     */
-    withNoScalars() {
-        return this;
     }
 
     /**
@@ -33,8 +27,16 @@ class Base {
      * renvoie la partie du noeud sans les scalaires pouvant être factorisés
      * @returns {Base}
      */
-    noscalar() {
+    noScalar() {
         return this;
+    }
+
+    /**
+     * renvoie la chaîne dépourvue de scalaires pour identifier un groupe dans une somme
+     * @returns {Base}
+     */
+    noScalarString() {
+        return String(this.noScalar());
     }
 
 }
