@@ -15,6 +15,13 @@ class Power extends Base {
      * @param {Base} exposant 
      */
     constructor(base, exposant) {
+        super();
+        if (!(base instanceof Base)) {
+            throw new Error("base invalide");
+        }
+        if (!(exposant instanceof Base)) {
+            throw new Error("exposant invalide");
+        }
         this.#left = base;
         this.#right = exposant;
     }
