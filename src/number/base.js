@@ -1,6 +1,4 @@
 class Base {
-    constructor(){ }
-
     /**
      * transtypage vers string
      * @returns {string}
@@ -38,7 +36,6 @@ class Base {
     noScalarString() {
         return String(this.noScalar());
     }
-
 }
 
 export { Base };
