@@ -1,15 +1,36 @@
-class Power {
+import { Base } from "./base";
+
+
+class Power extends Base {
+    /** @type {Base} */
     #left;
+    /** @type {Base} */
     #right;
-    constructor(left, right) {
-        this.#left = left;
-        this.#right = right;
+    /** @type {string|null} */
+    #string = null; 
+
+    /**
+     * constructeur
+     * @param {Base} base 
+     * @param {Base} exposant 
+     */
+    constructor(base, exposant) {
+        this.#left = base;
+        this.#right = exposant;
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
-        let left = this.#left.priority <= this.priority? `(${String(this.#left)})`:String(this.#left);
-        let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
-        return `${left} ^ ${right}`;
+        if (this.#string != null) {
+            return this.#string;
+        }
+        let base = this.#left.priority <= this.priority? `(${String(this.#left)})`:String(this.#left);
+        let exposant = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        this.#string = `${base} ^ ${exposant}`;
+        return this.#string;
     }
 
     get priority() {
@@ -22,14 +43,6 @@ class Power {
 
     get right() {
         return this.#right;
-    }
-
-    /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return String(this);
     }
 }
 
