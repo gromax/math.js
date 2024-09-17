@@ -19,6 +19,7 @@ class Mult extends Base {
      * @param {Base} right 
      */
     constructor(left, right) {
+        super();
         if (typeof left == "undefined") {
             throw new Error("left undefined");
         }
@@ -39,7 +40,7 @@ class Mult extends Base {
         } else {
             items.push(right);
         }
-        this.#items = _.sortBy(items, function(item){ return item.signature(); });
+        this.#items = _.sortBy(items, function(item){ return item.noScalarString(); });
     }
 
     /**
@@ -88,34 +89,6 @@ class Mult extends Base {
     }
 
     /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        let items = _.compact(
-            _.map(
-                this.items(),
-                function(item) { return item.signature(); }
-            ));
-        if (items.length == 1) {
-            return items[0];
-        }
-        return `(${items.join(')*(')})`;
-    }
-
-    calcScalars() {
-        let notscalars = this.getNotScalars();
-        if (notscalars.length == this.#items.length) {
-            return this;
-        }
-        let scalar = this.getScalar();
-        if (!scalar.isOne()) {
-            notscalars.unshift(scalar);
-        }
-        return Mult.fromList(notscalars);
-    }
-
-    /**
      * calcule le poduit des scalaires
      * @returns {Scalar}
      */
@@ -156,10 +129,11 @@ class Mult extends Base {
 }
 
 
-class Div {
+class Div extends Base {
     #left;
     #right;
     constructor(left, right) {
+        super();
         this.#left = left;
         this.#right = right;
     }
@@ -182,20 +156,6 @@ class Div {
         return this.#right;
     }
 
-    /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        let denoSignature = this.#right.signature();
-        if (denoSignature == "") {
-            return this.#left.signature();
-        }
-        if (this.#right.priority <= this.priority) {
-            return `(${this.#left.signature()})/(${denoSignature})`;    
-        }
-        return `(${this.#left.signature()})/${denoSignature}`;
-    }
 }
 
 export { Mult, Div};
