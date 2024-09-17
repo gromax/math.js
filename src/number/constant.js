@@ -1,8 +1,11 @@
-class Constant{
+import { Base } from "./base";
+
+class Constant extends Base {
     static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
     static #nodes = {};
     #name; /** @type{string} */
     constructor(name) {
+        super();
         if (!Constant.isConstant(name)) {
             throw new Error(`${name} n'est pas une constante valide.`)
         }
@@ -13,9 +16,9 @@ class Constant{
         }
     }
 
-    static E() {
+    static get E() {
         if (typeof Constant.#nodes.E == "undefined") {
-            this.#nodes.E = this.fromString('e');
+            this.#nodes.E = new Constant('e');
         }
         return this.#nodes.E;
     }
@@ -29,6 +32,9 @@ class Constant{
         if (!Constant.isConstant(chaine)) {
             return null;
         }
+        if (chaine == "e") {
+            return this.E;
+        }
         return new Constant(chaine);
     }
 
@@ -41,20 +47,16 @@ class Constant{
         return (Constant.NAMES.indexOf(chaine)>=0);
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
         return this.#name;
     }
 
     get priority() {
         return 10;
-    }
-
-    /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return String(this);
     }
 }
 
