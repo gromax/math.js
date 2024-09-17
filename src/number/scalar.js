@@ -67,7 +67,7 @@ class Scalar extends Base {
     static somme(scalars) {
         let s = this.ZERO;
         for (let scalar of scalars) {
-            if (! scalar instanceof Scalar) {
+            if (!(scalar instanceof Scalar)) {
                 throw new Error(`${scalar} n'est pas un objet Scalar`);
             }
             s = s.add(scalar);
@@ -83,7 +83,7 @@ class Scalar extends Base {
     static produit(scalars) {
         let s = this.ONE;
         for (let scalar of scalars) {
-            if (! scalar instanceof Scalar) {
+            if (!(scalar instanceof Scalar)) {
                 throw new Error(`${scalar} n'est pas un objet Scalar`);
             }
             s = s.multiply(scalar);
