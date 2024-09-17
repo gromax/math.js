@@ -71,6 +71,9 @@ function simplifyAdd(items){
 
 
 function developp(node) {
+    if (node.normalize) {
+        node = node.normalize();
+    }
     if (node instanceof Add) {
         let left = developp(node.left);
         let right = developp(node.right);
@@ -151,27 +154,6 @@ function developp(node) {
 
     if (node instanceof Function) {
         let child = developp(node.child);
-        if (node.name == "(+)") {
-            return child;
-        }
-        if (node.name == "inverse") {
-            if ((child instanceof Function) && (child.name == "inverse")) {
-                return child.child;
-            }
-            if (child instanceof Mult) {
-                return new Mult(
-                    developp(new Function("inverse", child.left)),
-                    developp(new Function("inverse", child.right))
-                );
-            }
-            if (child instanceof Div) {
-                return developp(new Mult(new Function("inverse", child.left), child.right));
-            }
-            if (child instanceof Scalar) {
-                return child.inverse();
-            }
-        }
-
         if (node.name == "(-)") {
             if ((child instanceof Function) && (child.name == "-")) {
                 return child.child;
@@ -190,13 +172,13 @@ function developp(node) {
             }
             if (child instanceof Mult) {
                 return developp(new Mult(
-                    new Scalar(-1),
+                    Scalar.MINUS_ONE,
                     child
                 ))
             }
             if (child instanceof Div) {
                 return developp(new Mult(
-                    new Mult(new Scalar(-1), child.left),
+                    new Mult(Scalar.MINUS_ONE, child.left),
                     new Function("inverse", child.right)
                 ))
             }
