@@ -28,3 +28,27 @@ $('#form').on('submit',
         add(String(developp(node)), arbre);
     }
 )
+
+let atester = [
+    "x",
+    "2 + 3",
+    "2 + 3*5",
+    "5*(3+2)",
+    "45+8(19-5x)/4+ y",
+    "45+8*(19-5x)/4+ 2x",
+    "45+8 *-(19-5x)/4+y",
+    "exp(x+1) - exp(2x+1) / exp(x)"
+];
+let parent = document.getElementById("tests");
+for (let item of atester){
+    parent.innerHTML += "<h4>" + item + "</h4>";
+    console.log("Traitement de "+item);
+    let p = new Parser(item);
+    parent.innerHTML += `<p><b>rpn :</b> ${p.rpn.join(' ; ')}</p>`;
+    for (let m of p.messages) {
+        parent.innerHTML += `<p><i>message :</b> ${m}</p>`;
+    }
+    let node = build(p.rpn);
+    parent.innerHTML += `<p><b>arbre :</b> ${String(node)}</p>`;
+    parent.innerHTML += `<p><b>développé :</b> ${String(developp(node))}</p>`;
+}
