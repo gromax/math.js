@@ -118,8 +118,6 @@ class Minus extends Base {
         return this.#right;
     }
 
-
-
 }
 
 export { Add, Minus};
