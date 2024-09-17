@@ -9,6 +9,8 @@ class Scalar extends Base {
     static ZERO;
     /** @type {Scalar} */
     static MINUS_ONE;
+    /** @type {Scalar} */
+    static NAN;
 
     /** @type{string} */
     #chaine = "";
@@ -38,6 +40,7 @@ class Scalar extends Base {
      * @param {string, number} entree 
      */
     constructor(entree) {
+        super();
         if (typeof entree == 'string') {
             this.#makeFromString(entree);
         } else if (typeof entree == 'number') {
@@ -54,6 +57,38 @@ class Scalar extends Base {
      */
     static isScalar(chaine) {
         return Scalar.REGEX.test(chaine);
+    }
+
+    /**
+     * Effectue la somme des scalaires
+     * @param {Array} scalars 
+     * @returns {Scalar}
+     */
+    static somme(scalars) {
+        let s = this.ZERO;
+        for (let scalar of scalars) {
+            if (! scalar instanceof Scalar) {
+                throw new Error(`${scalar} n'est pas un objet Scalar`);
+            }
+            s = s.add(scalar);
+        }
+        return s;
+    }
+
+    /**
+     * Effectue la multiplication des scalaires
+     * @param {Array} scalars 
+     * @returns {Scalar}
+     */
+    static produit(scalars) {
+        let s = this.ONE;
+        for (let scalar of scalars) {
+            if (! scalar instanceof Scalar) {
+                throw new Error(`${scalar} n'est pas un objet Scalar`);
+            }
+            s = s.multiply(scalar);
+        }
+        return s;
     }
 
     /**
@@ -155,14 +190,6 @@ class Scalar extends Base {
     }
 
     /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return "";
-    }
-
-    /**
      * renvoie true si c'est un NaN
      * @returns {boolean}
      */
@@ -194,7 +221,7 @@ class Scalar extends Base {
      */
     inverse() {
         if (this.isNaN()) {
-            return this;
+            return Scalar.NAN;
         }
         let inv = this.#floatValue == 0? new Scalar(Number('NaN')):new Scalar(1/this.#floatValue);
         inv.#float = this.#float || inv.isNaN()
@@ -213,7 +240,7 @@ class Scalar extends Base {
      */
     multiply(other) {
         if (this.isNaN()) {
-            return this;
+            return Scalar.NAN;
         }
         if (other === 1) {
             return this;
@@ -222,7 +249,7 @@ class Scalar extends Base {
             other = new Scalar(other);
         }
         if (other.isNaN()) {
-            return other;
+            return Scalar.NAN;
         }
         let s = new Scalar(this.#floatValue * other.floatValue);
         s.#float = this.#float || other.#float;
@@ -240,9 +267,41 @@ class Scalar extends Base {
      * @param {Scalar|number|string} other 
      * @returns {Scalar}
      */
-    add(other) {
+    power(other) {
         if (this.isNaN()) {
             return this;
+        }
+        if (other === 1) {
+            return this;
+        }
+        if (!(other instanceof Scalar)) {
+            other = new Scalar(other);
+        }
+        if (other.isNaN()) {
+            return other;
+        }
+        if (this.#float || other.#float || !other.isInteger()) {
+            return new Scalar(Math.pow(this.#floatValue, other.#floatValue));
+        }
+        let p = Math.abs(other.#floatValue);
+        let s = Scalar.ONE;
+        for (let i=0; i<p; i++) {
+            s = s.multiply(this);
+        }
+        if (other.#floatValue<0) {
+            s = s.inverse();
+        }
+        return s;
+    }
+
+    /**
+     * renvoie this * other
+     * @param {Scalar|number|string} other 
+     * @returns {Scalar}
+     */
+    add(other) {
+        if (this.isNaN()) {
+            return Scalar.NAN;
         }
         if (other === 0) {
             return this;
@@ -251,7 +310,7 @@ class Scalar extends Base {
             other = new Scalar(other);
         }
         if (other.isNaN()) {
-            return other;
+            return Scalar.NAN;
         }
         let s = new Scalar(this.#floatValue + other.floatValue);
         s.#float = this.#float || other.#float;
@@ -271,7 +330,7 @@ class Scalar extends Base {
      */
     divide(other) {
         if (this.isNaN()) {
-            return this;
+            return Scalar.NAN;
         }
         if (other === 1) {
             return this;
@@ -280,7 +339,7 @@ class Scalar extends Base {
             other = new Scalar(other);
         }
         if (other.isNaN()) {
-            return other;
+            return Scalar.NAN;
         }
         return this.multiply(other.inverse());
     }
@@ -319,7 +378,10 @@ Scalar.ZERO = new Scalar(0);
 /** @type {Scalar} */
 Scalar.MINUS_ONE = Scalar.ONE.opposite();
 
-Base.scalar = function() {
+/** @type {Scalar} */
+Scalar.NAN = new Scalar(NaN);
+
+Base.prototype.scalar = function() {
     return Scalar.ONE;
 }
 
