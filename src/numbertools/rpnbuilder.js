@@ -1,10 +1,11 @@
+import { Scalar } from "../number/scalar";
 import { Function } from "../number/function";
 import { Add, Minus } from "../number/add";
 import { Mult, Div } from '../number/mult';
 import { Power } from '../number/power';
 import { Constant } from "../number/constant";
 import { Symbol } from "../number/symbol";
-import { Scalar } from "../number/scalar";
+
 
 function build(rpn) {
     let stack = [];
