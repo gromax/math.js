@@ -245,7 +245,7 @@ class Parser {
             }
         }
         if (n > 0) {
-            correcteTokens.push(tokens[n-1]);
+            correctedTokens.push(tokens[n-1]);
         }
         return correctedTokens;
     }
