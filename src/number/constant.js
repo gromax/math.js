@@ -1,5 +1,6 @@
 class Constant{
     static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
+    static #nodes = {};
     #name; /** @type{string} */
     constructor(name) {
         if (!Constant.isConstant(name)) {
@@ -10,6 +11,13 @@ class Constant{
             case 'pi': this.#name = 'π'; break;
             default: this.#name = name;
         }
+    }
+
+    static E() {
+        if (typeof Constant.#nodes.E == "undefined") {
+            this.#nodes.E = this.fromString('e');
+        }
+        return this.#nodes.E;
     }
 
     /**
@@ -48,8 +56,6 @@ class Constant{
     signature() {
         return String(this);
     }
-
-
 }
 
 export { Constant };
