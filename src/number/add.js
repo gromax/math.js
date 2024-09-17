@@ -15,10 +15,11 @@ class Add extends Base {
      * @param {Base} right 
      */
     constructor(left, right) {
-        if (! left instanceof Base) {
+        super();
+        if (!(left instanceof Base)) {
             throw new Error("left invalide");
         }
-        if (! right instanceof Base) {
+        if (!(right instanceof Base)) {
             throw new Error("right invalide");
         }
 
@@ -35,7 +36,7 @@ class Add extends Base {
         } else {
             items.push(right);
         }
-        this.#items = _.sortBy(items, function(item){return item.signature()});
+        this.#items = _.sortBy(items, function(item){return item.noScalarString()});
         this.#str = `${String(this.#left)} + ${String(this.#right)}`;
     }
 
@@ -91,6 +92,7 @@ class Minus extends Base {
     #right;
     #string;
     constructor(left, right) {
+        super();
         this.#left = left;
         this.#right = right;
         let strLeft = String(this.#left);
