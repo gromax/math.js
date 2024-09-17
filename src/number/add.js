@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { Base } from "./base";
 import { Scalar } from "./scalar";
-import { Mult } from "./mult";
 
 
 class Add extends Base {
@@ -11,7 +10,7 @@ class Add extends Base {
     #str;
 
     /**
-     * 
+     * constructeur
      * @param {Base} left 
      * @param {Base} right 
      */
@@ -84,118 +83,19 @@ class Add extends Base {
     get right() {
         return this.#right;
     }
-
-    /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return String(this);
-    }
-
-    /**
-     * Calcule les scalaires
-     * @returns {Add|Scalar}
-     */
-    calcScalars() {
-        let scalars = _.filter(this.#items, function(item){ return item instanceof Scalar; });
-        if (scalars.length <= 1) {
-            return this;
-        }
-        let notscalars = _.filter(this.#items, function(item){ return !(item instanceof Scalar); });
-        let s = scalars.pop();
-        for (let item of scalars) {
-            s = s.add(item);
-        }
-        notscalars.unshift(s);
-        return Add.fromList(notscalars);
-    }
-
-    #makeGroup(items){
-        let current = items[0];
-        let currentGroup = [current];
-        let notTaken = []
-        let signature = current.signature();
-        for (let j=1; j<items.length; j++) {
-            let item = items[j];
-            if (item.signature() == signature) {
-                currentGroup.push(item);
-            } else {
-                notTaken.push(item);
-            }
-        }
-        return (currentGroup, notTaken);
-    }
-    /**
-     * regroupe les élements d'une somme ayant la même base
-     * @param {Array} items 
-     * @returns {Mult, Scalar}
-     */
-    #contractGroup(items){
-        if (items.length == 0) {
-            return new Scalar(0);
-        }
-        if (items.length == 1) {
-            return items[0];
-        }
-        let scalars = [];
-        let baseNode = items[0] instanceof Scalar ? new Scalar(1)
-                        : items[0] instanceof Mult ? Mult.fromList(items[0].getNotScalars())
-                        : items[0];
-        for (let item of items) {
-            if (item instanceof Scalar) {
-                scalars.push(item);
-                continue;
-            }
-            if (item instanceof Mult) {
-                scalars.push(item.getScalar());
-                continue;
-            }
-            scalars.push(new Scalar(1));
-        }
-        let s = scalars.pop();
-        for (let item of scalars){
-            s = s.add(item);
-        }
-        if (s.isZero()) {
-            return s;
-        } else if (baseNode instanceof Scalar) {
-            return s;
-        } else if (s.isOne()) {
-            return baseNode;
-        } else {
-            return new Mult(s, baseNode);
-        }
-    }
-
-    /**
-     * Regroupe les termes de même signature
-     * @returns { Add }
-     */
-    groupeSameSignatures(){
-        let items = this.#items; /** @type {Array} */
-        console.log(_.map(items, function(item){return item.signature();}).join(';'));
-        let out = [];
-        while (items.length >0) {
-            let group;
-            [group, items] = this.#makeGroup(items);
-            out.push(this.#contractGroup(group));
-        }
-        return Add.fromList(out);
-    }
 }
 
 
 class Minus extends Base {
     #left;
     #right;
-    #str;
+    #string;
     constructor(left, right) {
         this.#left = left;
         this.#right = right;
         let strLeft = String(this.#left);
         let strRight = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
-        this.#str = `${strLeft} - ${strRight}`;
+        this.#string = `${strLeft} - ${strRight}`;
     }
 
     /**
@@ -203,7 +103,7 @@ class Minus extends Base {
      * @returns {string}
      */
     toString() {
-        return this.#str;
+        return this.#string;
     }
 
     get priority() {
@@ -218,13 +118,8 @@ class Minus extends Base {
         return this.#right;
     }
 
-    /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return String(this);
-    }
+
+
 }
 
 export { Add, Minus};
