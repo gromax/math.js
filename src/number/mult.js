@@ -1,10 +1,23 @@
 import _ from "lodash";
+import { Base } from "./base";
 import { Scalar } from "./scalar";
 
-class Mult {
+class Mult extends Base {
     #left;
     #right;
     #items;
+    /** @type {string|null} représentation texte */
+    #string = null;
+    /** @type {Base|null} noeud sans les scalaires factorisables */
+    #noScalar = null;
+    /** @type {Scalar|nulll} scalaire factorisable */
+    #scalar = null;
+
+    /**
+     * constructeur
+     * @param {Base} left 
+     * @param {Base} right 
+     */
     constructor(left, right) {
         if (typeof left == "undefined") {
             throw new Error("left undefined");
@@ -54,9 +67,12 @@ class Mult {
     }
 
     toString() {
-        let left = this.#left.priority < this.priority? `(${String(this.#left)})`:String(this.#left);
-        let right = this.#right.priority < this.priority? `(${String(this.#right)})`:String(this.#right);
-        return `${left} * ${right}`;
+        if (this.#string == null) {
+            let left = this.#left.priority < this.priority? `(${String(this.#left)})`:String(this.#left);
+            let right = this.#right.priority < this.priority? `(${String(this.#right)})`:String(this.#right);
+            this.#string = `${left} * ${right}`;
+        }
+        return this.#string;
     }
 
     get priority() {
@@ -103,24 +119,39 @@ class Mult {
      * calcule le poduit des scalaires
      * @returns {Scalar}
      */
-    getScalar() {
+    scalar() {
+        if (this.#scalar) {
+            return this.#scalar;
+        }
         let scalars = _.filter(this.#items, function(item){ return item instanceof Scalar; });
         if (scalars.length == 0) {
-            return new Scalar(1);
+            return Scalar.ONE;
         }
         let s = scalars.pop();
         for (let item of scalars) {
             s = s.multiply(item);
         }
+        this.#scalar = s;
         return s;
     }
 
     /**
-     * renvoie la liste des non scalaires
-     * @returns {Array}
+     * renvoie le noeud composé des éléments nons scalaires
+     * @returns {Base}
      */
-    getNotScalars() {
-        return  _.filter(this.#items, function(item){ return !(item instanceof Scalar); });
+    noScalar() {
+        if (this.#noScalar == null) {
+            this.#noScalar = Mult.fromList(_.filter(this.#items, function(item){ return !(item instanceof Scalar); }));
+        }
+        return this.#noScalar;
+    }
+
+    /**
+     * renvoie la chaîne dépourvue de scalaires pour identifier un groupe dans une somme
+     * @returns {Base}
+     */
+    noScalarString() {
+        return String(this.noScalar());
     }
 }
 
