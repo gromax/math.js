@@ -17,6 +17,7 @@ class Function extends Base {
 
     static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp', 'inverse'];
     constructor(name, child) {
+        super();
         if (!Function.isFunction(name)) {
             throw new Error(`${name} n'est pas une fonction reconnue.`);
         }
@@ -97,28 +98,11 @@ class Function extends Base {
         if (this.#noScalar != null) {
             return this.#noScalar;
         }
-        this.#noScalar = ((this.#name == "(-)") || (this.#name == "(+)")) ? this.#child.noscalar()
+        this.#noScalar = ((this.#name == "(-)") || (this.#name == "(+)")) ? this.#child.noScalar()
                        : (this.#name == "inverse") ? new Power(this.#child.noScalar(), Scalar.MINUS_ONE)
-                       : (this.#name == "exp") ? new Power(Constant.E(), this.#child)
+                       : (this.#name == "exp") ? new Power(Constant.E, this.#child)
                        : this;
         return this.#noScalar;
-    }
-
-    /**
-     * renvoie une forme normalisée : power pour inverse ou exp
-     * @returns {Base}
-     */
-    normalize() {
-        if (this.#name == 'exp') {
-            return new Power(Constant.E(), this.#child);
-        }
-        if (this.#name == 'inverse') {
-            return new Power(this.#child, Scalar.MINUS_ONE);
-        }
-        if (this.#name == "(+)") {
-            return this.#child;
-        }
-        return this;
     }
 
 }
