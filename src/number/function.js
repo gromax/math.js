@@ -1,6 +1,20 @@
-class Function {
+import { Base } from "./base";
+import { Scalar } from "./scalar";
+import { Power } from "./power";
+import { Constant} from "./constant";
+
+class Function extends Base {
+    /** @type {Base} */
     #child;
+    /** @type {string} */
     #name;
+    /** @type {string|null} représentation texte */
+    #string = null;
+    /** @type {Scalar|null} scalaire factorisable */
+    #scalar = null;
+    /** @type {Base|null} nœud sans ses scalaires factorisables */
+    #noScalar = null;
+
     static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp', 'inverse'];
     constructor(name, child) {
         if (!Function.isFunction(name)) {
@@ -31,12 +45,21 @@ class Function {
         return (Function.NAMES.indexOf(chaine)>=0);
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
-        if (this.#name == '(+)') {
-            return String(this.#child);
+        if (this.#string != null) {
+            return this.#string;
         }
-        let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
-        return `${this.#name}${child}`;
+        if (this.#name == '(+)') {
+            this.#string = String(this.#child);
+        } else {
+            let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
+            this.#string = `${this.#name}${child}`;
+        }
+        return this.#string;
     }
 
     get name() {
@@ -52,11 +75,33 @@ class Function {
     }
 
     /**
-    * renvoie un text donnant une représentation de l'objet sans le facteur numérique en vue de regroupement
-    * @return {string}
-    */
-    signature() {
-        return String(this);
+     * scalaire pouvant être factorisé
+     * @returns {Scalar}
+     */
+    scalar(){
+        if (this.#scalar != null) {
+            return this.#scalar;
+        }
+        this.#scalar = this.#name == "(+)" ? this.#child.scalar()
+                     : this.#name == "(-)" ? Scalar.MINUS_ONE.multiply(this.#child.scalar())
+                     : this.#name == "inverse" ? Scalar.ONE.divide(this.#child.scalar())
+                     : Scalar.ONE;
+        return this.#scalar;
+    }
+    
+    /**
+     * renvoie la partie du noeud sans les scalaires pouvant être factorisés
+     * @returns {Base}
+     */
+    noScalar() {
+        if (this.#noScalar != null) {
+            return this.#noScalar;
+        }
+        this.#noScalar = ((this.#name == "(-)") || (this.#name == "(+)")) ? this.#child.noscalar()
+                       : (this.#name == "inverse") ? new Power(this.#child.noScalar(), Scalar.MINUS_ONE)
+                       : (this.#name == "exp") ? new Power(Constant.E(), this.#child)
+                       : this;
+        return this.#noScalar;
     }
 
 }
