@@ -2,25 +2,21 @@ import { Base } from "./base";
 
 class Constant extends Base {
     static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
-    static #nodes = {};
+    static #list = {};
     #name; /** @type{string} */
     constructor(name) {
         super();
         if (!Constant.isConstant(name)) {
             throw new Error(`${name} n'est pas une constante valide.`)
         }
-        switch(name) {
-            case 'infini': this.#name = '∞'; break;
-            case 'pi': this.#name = 'π'; break;
-            default: this.#name = name;
-        }
     }
 
-    static get E() {
-        if (typeof Constant.#nodes.E == "undefined") {
-            this.#nodes.E = new Constant('e');
+    static alias(name){
+        switch(name) {
+            case 'infini': return '∞';
+            case 'pi': return 'π';
+            default: return name;
         }
-        return this.#nodes.E;
     }
 
     /**
@@ -32,10 +28,11 @@ class Constant extends Base {
         if (!Constant.isConstant(chaine)) {
             return null;
         }
-        if (chaine == "e") {
-            return this.E;
+        let name = this.alias(chaine);
+        if (typeof this.#list[name] == 'undefined') {
+            this.#list[name] = new Constant(name);
         }
-        return new Constant(chaine);
+        return this.#list(name);
     }
 
     /**
@@ -60,4 +57,17 @@ class Constant extends Base {
     }
 }
 
-export { Constant };
+const E = Constant.fromString('e');
+const PI = Constant.fromString('pi');
+const I = Constant.fromString('i');
+const INFINI = Constant.fromString('infini');
+
+function isConstant(name){
+    return Constant.isConstant(name);
+}
+
+function makeConstant(name){
+    return Constant.fromString(name);
+}
+
+export { makeConstant, isConstant, E, PI, I, INFINI };
