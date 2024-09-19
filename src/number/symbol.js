@@ -20,7 +20,7 @@ class Symbol extends Base {
             return null;
         }
         if (typeof this.#liste[chaine] == 'undefined') {
-            this.#liste[chaine] == new Symbol(chaine);
+            this.#liste[chaine] = new Symbol(chaine);
         }
         return this.#liste[chaine];
     }
@@ -40,6 +40,19 @@ class Symbol extends Base {
 
     get priority() {
         return 10;
+    }
+
+    /**
+     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
+     * sinon renvoie la liste des variables dont dépend le noeud
+     * @param {string|undefined} name 
+     * @returns {boolean|Array}
+     */
+    isFunctionOf(name){
+        if (typeof name == 'undefined') {
+            return [this.#name];
+        }
+        return this.#name == name;
     }
 }
 

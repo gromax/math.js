@@ -36,6 +36,19 @@ class Base {
     noScalarString() {
         return String(this.noScalar());
     }
+
+    /**
+     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
+     * sinon renvoie la liste des variables dont dépend le noeud
+     * @param {string|undefined} name 
+     * @returns {boolean|Array}
+     */
+    isFunctionOf(name){
+        if (typeof name == 'undefined') {
+            return [];
+        }
+        return false;
+    }
 }
 
 export { Base };
