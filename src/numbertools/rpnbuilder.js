@@ -3,8 +3,8 @@ import { Function } from "../number/function";
 import { Add, Minus } from "../number/add";
 import { Mult, Div } from '../number/mult';
 import { Power } from '../number/power';
-import { Constant } from "../number/constant";
-import { Symbol } from "../number/symbol";
+import { makeConstant, isConstant } from "../number/constant";
+import { makeSymbol, isSymbol } from "../number/symbol";
 
 
 function build(rpn) {
@@ -63,12 +63,12 @@ function build(rpn) {
             stack.push(new Power(left, right));
             continue;
         }
-        if (Constant.isConstant(item)) {
-            stack.push(new Constant(item));
+        if (isConstant(item)) {
+            stack.push(makeConstant(item));
             continue;
         }
-        if (Symbol.isSymbol(item)) {
-            stack.push(new Symbol(item));
+        if (isSymbol(item)) {
+            stack.push(makeSymbol(item));
             continue;
         }
         if (Scalar.isScalar(item)) {
