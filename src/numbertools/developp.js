@@ -6,7 +6,7 @@ import { Add, Minus } from "../number//add";
 import { Mult, Div } from '../number//mult';
 import { Power } from '../number/power';
 import { Scalar } from "../number/scalar";
-import { Constant } from "../number/constant";
+import { E } from "../number/constant";
 
 
 /**
@@ -144,7 +144,7 @@ function simplifyMult(mult){
 function normalize(node) {
     if (node instanceof Function) {
         if (node.name == 'exp') {
-            return new Power(Constant.E, node.child);
+            return new Power(E, node.child);
         }
         if (node.name == 'inverse') {
             return new Power(node.child, Scalar.MINUS_ONE);
