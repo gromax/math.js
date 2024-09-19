@@ -32,7 +32,7 @@ class Constant extends Base {
         if (typeof this.#list[name] == 'undefined') {
             this.#list[name] = new Constant(name);
         }
-        return this.#list(name);
+        return this.#list[name];
     }
 
     /**
