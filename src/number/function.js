@@ -1,7 +1,7 @@
 import { Base } from "./base";
 import { Scalar } from "./scalar";
 import { Power } from "./power";
-import { Constant} from "./constant";
+import { E } from "./constant";
 
 class Function extends Base {
     /** @type {Base} */
@@ -100,7 +100,7 @@ class Function extends Base {
         }
         this.#noScalar = ((this.#name == "(-)") || (this.#name == "(+)")) ? this.#child.noScalar()
                        : (this.#name == "inverse") ? new Power(this.#child.noScalar(), Scalar.MINUS_ONE)
-                       : (this.#name == "exp") ? new Power(Constant.E, this.#child)
+                       : (this.#name == "exp") ? new Power(E, this.#child)
                        : this;
         return this.#noScalar;
     }
