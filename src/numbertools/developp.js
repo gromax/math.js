@@ -79,8 +79,8 @@ function makeMultGroups(items){
             scalars.push(item);
             continue;
         }
-        let base = item instanceof Power? item.left : item;
-        let exposant = item instanceof Power? item.right : Scalar.ONE;
+        let base = item instanceof Power? item.base : item;
+        let exposant = item instanceof Power? item.exposant : Scalar.ONE;
         let s = String(base);
         if (typeof groups[s] == "undefined") {
             groups[s] = {
@@ -199,35 +199,35 @@ function developp(node) {
     }
 
     if (node instanceof Power) {
-        let left = developp(node.left);
-        let right = developp(node.right);
-        if (left instanceof Mult) {
+        let base = developp(node.base);
+        let exposant = developp(node.exposant);
+        if (base instanceof Mult) {
             return developp(new Mult(
-                new Power(left.left, right),
-                new Power(left.right, right)
+                new Power(base.left, exposant),
+                new Power(base.right, exposant)
             ));
         }
-        if (left instanceof Power){
+        if (base instanceof Power){
             return developp(new Power(
-                left.left,
-                new Mult(left.right, right)
+                base.base,
+                new Mult(base.exposant, exposant)
             ));
         }
-        let expo = (right instanceof Scalar) && (right.isInteger())? right.floatValue : null;
-        if (expo && (left instanceof Scalar)) {
-            return left.power(right);
+        let expo = (exposant instanceof Scalar) && (exposant.isInteger())? exposant.floatValue : null;
+        if (expo && (base instanceof Scalar)) {
+            return base.power(exposant);
         }
         if (expo == 1) {
-            return left;
+            return base;
         }
         if (expo == 0) {
             return Scalar.ONE;
         }
-        if ((expo != null) && (Math.abs(expo)>1) && (left instanceof Add)) {
-            let p = Math.abs(right.floatValue);
-            let n = left;
+        if ((expo != null) && (Math.abs(expo)>1) && (base instanceof Add)) {
+            let p = Math.abs(exposant.floatValue);
+            let n = base;
             while (p>1) {
-                n = new Mult(left, n);
+                n = new Mult(base, n);
                 p -= 1;
             }
             if (expo<0) {
@@ -235,7 +235,7 @@ function developp(node) {
             }
             return developp(n);
         }
-        return left == node.left && right == node.right ? node : new Power(left, right);
+        return base == node.base && exposant == node.exposant ? node : new Power(base, exposant);
     }
 
     if (node instanceof Function) {

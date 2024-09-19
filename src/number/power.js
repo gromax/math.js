@@ -3,9 +3,9 @@ import { Base } from "./base";
 
 class Power extends Base {
     /** @type {Base} */
-    #left;
+    #base;
     /** @type {Base} */
-    #right;
+    #exposant;
     /** @type {string|null} */
     #string = null; 
 
@@ -22,8 +22,8 @@ class Power extends Base {
         if (!(exposant instanceof Base)) {
             throw new Error("exposant invalide");
         }
-        this.#left = base;
-        this.#right = exposant;
+        this.#base = base;
+        this.#exposant = exposant;
     }
 
     /**
@@ -34,8 +34,8 @@ class Power extends Base {
         if (this.#string != null) {
             return this.#string;
         }
-        let base = this.#left.priority <= this.priority? `(${String(this.#left)})`:String(this.#left);
-        let exposant = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        let base = this.#base.priority <= this.priority? `(${String(this.#base)})`:String(this.#base);
+        let exposant = this.#exposant.priority <= this.priority? `(${String(this.#exposant)})`:String(this.#exposant);
         this.#string = `${base} ^ ${exposant}`;
         return this.#string;
     }
@@ -44,12 +44,12 @@ class Power extends Base {
         return 3;
     }
 
-    get left() {
-        return this.#left;
+    get base() {
+        return this.#base;
     }
 
-    get right() {
-        return this.#right;
+    get exposant() {
+        return this.#exposant;
     }
 }
 

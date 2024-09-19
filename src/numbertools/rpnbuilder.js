@@ -58,9 +58,9 @@ function build(rpn) {
             if (stack.length <2) {
                 throw new Error(`L'exponentiation n'a pas assez d'opérandes à dépiler.`);
             }
-            let right = stack.pop();
-            let left = stack.pop();
-            stack.push(new Power(left, right));
+            let exposant = stack.pop();
+            let base = stack.pop();
+            stack.push(new Power(base, exposant));
             continue;
         }
         if (isConstant(item)) {
