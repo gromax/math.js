@@ -3,12 +3,10 @@ import { Base } from "./base";
 class Symbol extends Base {
     #name; /** @type{string} */
     static REGEX = new RegExp("[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i');
-    
+    static #liste = {};
+
     constructor(name) {
         super();
-        if (!Symbol.isSymbol(name)) {
-            throw new Error(`${name} n'est pas un nom de symbole valide.`);
-        }
         this.#name = name;
     }
 
@@ -21,7 +19,10 @@ class Symbol extends Base {
         if (!Symbol.isSymbol(chaine)) {
             return null;
         }
-        return new Symbol(chaine);
+        if (typeof this.#liste[chaine] == 'undefined') {
+            this.#liste[chaine] == new Symbol(chaine);
+        }
+        return this.#liste[chaine];
     }
 
     /**
@@ -40,7 +41,14 @@ class Symbol extends Base {
     get priority() {
         return 10;
     }
-
 }
 
-export { Symbol };
+function makeSymbol(name) {
+    return Symbol.fromString(name);
+}
+
+function isSymbol(name) {
+    return Symbol.isSymbol(name);
+}
+
+export { makeSymbol, isSymbol };
