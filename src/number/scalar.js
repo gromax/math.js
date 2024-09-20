@@ -367,6 +367,14 @@ class Scalar extends Base {
     noScalarString() {
         return "1";
     }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        return this.#floatValue; // à compléter...
+    }
 }
 
 /** @type {Scalar} */
