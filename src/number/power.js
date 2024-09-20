@@ -64,6 +64,16 @@ class Power extends Base {
         }
         return this.#base.isFunctionOf(name) || this.#exposant.isFunctionOf(name);
     }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        let texBase = this.#base.priority <= this.priority? `\\left(${this.#base.tex()}\\right)`:this.#base.tex();
+        let texExposant = this.#exposant.tex();
+        return `${texBase}^{${texExposant}}`;
+    }
 }
 
 export { Power }

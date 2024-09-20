@@ -118,6 +118,28 @@ class Function extends Base {
         return this.#child.isFunctionOf(name);
     }
 
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        if (this.#name == 'inverse') {
+            return `\\frac{1}{${this.#child.tex()}}`;
+        }
+        if (this.#name == 'sqrt') {
+            return `\\sqrt{${this.#child.tex()}}`;
+        }
+        if (this.#name == '(+)') {
+            return this.#child.tex();
+        }
+
+        let texChild = this.#child.priority <= this.priority? `\\left(${this.#child.tex()}\\right)`:` ${this.#child.tex()}`;
+        if (this.#name == '(-)') {
+            return `- ${texChild}`;
+        }
+        return `\\${this.#name}${texChild}`;
+    }
+
 }
 
 export { Function };

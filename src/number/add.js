@@ -97,6 +97,16 @@ class Add extends Base {
         }
         return this.#left.isFunctionOf(name) || this.#right.isFunctionOf(name);
     }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        let texLeft = this.#left.tex();
+        let texRight = this.#right.tex();
+        return `${texLeft} + ${texRight}`;
+    }
 }
 
 
@@ -144,6 +154,16 @@ class Minus extends Base {
             return _.uniq(this.#left.isFunctionOf().concat(this.#right.isFunctionOf()));
         }
         return this.#left.isFunctionOf(name) || this.#right.isFunctionOf(name);
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        let texLeft = this.#left.tex();
+        let texRight = this.#right.priority <= this.priority? `\\left(${this.#right.tex()})`:this.#right.tex();
+        return `${texLeft} - ${texRight}`;
     }
 
 }

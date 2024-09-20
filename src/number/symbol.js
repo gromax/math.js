@@ -54,6 +54,14 @@ class Symbol extends Base {
         }
         return this.#name == name;
     }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        return this.#name;
+    }
 }
 
 function makeSymbol(name) {

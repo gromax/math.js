@@ -139,6 +139,16 @@ class Mult extends Base {
         }
         return this.#left.isFunctionOf(name) || this.#right.isFunctionOf(name);
     }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        let texLeft = this.#left.priority < this.priority? `\\left(${this.#left.tex()}\\right)`:this.#left.tex();
+        let texRight = this.#right.priority < this.priority? `\\left(${this.#right.tex()}\\right)`:this.#right.tex();
+        return `${texLeft} \\cdot ${texRight}`;
+    }
 }
 
 
@@ -180,6 +190,16 @@ class Div extends Base {
             return _.uniq(this.#left.isFunctionOf().concat(this.#right.isFunctionOf()));
         }
         return this.#left.isFunctionOf(name) || this.#right.isFunctionOf(name);
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        let texLeft = this.#left.tex();
+        let texRight = this.#right.tex();
+        return `\\frac{${texLeft}}{${texRight}}`;
     }
 
 }

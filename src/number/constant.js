@@ -2,6 +2,12 @@ import { Base } from "./base";
 
 class Constant extends Base {
     static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
+    static TEX = {
+        'e': 'e',
+        'π': '\\pi',
+        'i': 'i',
+        '∞': '\\infty'
+    }
     static #list = {};
     #name; /** @type{string} */
     constructor(name) {
@@ -54,6 +60,14 @@ class Constant extends Base {
 
     get priority() {
         return 10;
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        return Constant.TEX[this.#name];
     }
 }
 

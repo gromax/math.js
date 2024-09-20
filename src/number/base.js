@@ -49,6 +49,14 @@ class Base {
         }
         return false;
     }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        return "(?)"
+    }
 }
 
 export { Base };
