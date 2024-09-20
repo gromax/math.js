@@ -128,3 +128,4 @@ dist/test.js
 dist/maths.js
 package-lock.json
 dist/test_parser.js
+dist/test_tex.js
