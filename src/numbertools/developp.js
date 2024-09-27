@@ -134,6 +134,20 @@ function simplifyMult(mult){
     return Mult.fromList(operandes);
 }
 
+/**
+ * s'il s'agit d'une exponentielle, renvoie l'exposant
+ * @param {Base} node
+ * @returns {Base|null} renvoie l'exposant ou null
+ */
+function expArg(node){
+    if ((node instanceof Function) && (node.name == "exp")) {
+            return node.child;
+    }
+    if ((node instanceof Power) && (node.base == E)){
+        return node.exposant;
+    }
+    return null;
+}
 
 
 /**
@@ -213,6 +227,9 @@ function developp(node) {
                 new Mult(base.exposant, exposant)
             ));
         }
+        if ((base == E) && (exposant instanceof Function) && (exposant.name == "ln")) {
+            return exposant.child;
+        }
         let expo = (exposant instanceof Scalar) && (exposant.isInteger())? exposant.floatValue : null;
         if (expo && (base instanceof Scalar)) {
             return base.power(exposant);
@@ -235,11 +252,21 @@ function developp(node) {
             }
             return developp(n);
         }
+
         return base == node.base && exposant == node.exposant ? node : new Power(base, exposant);
     }
 
     if (node instanceof Function) {
         let child = developp(node.child);
+        if (node.name == "ln") {
+            let arg = expArg(child);
+            if (arg) {
+                return arg;
+            }
+        }
+        if ((node.name == "exp") && (child instanceof Function) && (child.name == "ln")) {
+            return child.child;
+        }
         return child==node.child ? node : new Function(node.name, child);
     }
     return node;
