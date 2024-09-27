@@ -16,6 +16,12 @@ class Function extends Base {
     #noScalar = null;
 
     static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp', 'inverse'];
+
+    /**
+     * constructeur
+     * @param {string} name 
+     * @param {Base} child 
+     */
     constructor(name, child) {
         super();
         if (!Function.isFunction(name)) {
